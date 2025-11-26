@@ -26,18 +26,20 @@ class RobotMover(Node):
         ]
         self.current_index = 0
 
-        self.slowness_radius = 0.6  # radius to start slowing down
+        # Speed zone radii (symmetric profile)
+        self.slow_radius = 0.6      # R_SLOW    → min speed zone
+        self.fast_radius = 2.0      # R_FAST    → full speed region
 
         self.x = 0.0
         self.y = 0.0
         self.yaw = 0.0
 
-        # Speed parameters (REALISTIC)
+        # Speed parameters
         self.actual_speed = 0.0
-        self.max_speed = 0.4      # m/s
-        self.min_speed = 0.07     # m/s
-        self.accel = 0.05         # acceleration per cycle
-        self.decel = 0.05         # deceleration per cycle
+        self.max_speed = 0.4   # MAX
+        self.min_speed = 0.07  # MIN
+        self.accel = 0.05
+        self.decel = 0.05
 
         self.timer = self.create_timer(0.1, self.update)
         self.get_logger().info("Smooth Robot Mover started")
@@ -56,31 +58,40 @@ class RobotMover(Node):
 
         dx = target_x - self.x
         dy = target_y - self.y
-
         distance = math.hypot(dx, dy)
 
         target_angle = math.atan2(dy, dx)
         angle_diff = target_angle - self.yaw
-        angle_diff = math.atan2(math.sin(angle_diff), math.cos(angle_diff))  # normalize
+        angle_diff = math.atan2(math.sin(angle_diff), math.cos(angle_diff))
 
         twist = Twist()
 
-        # --------------------------
-        # SMOOTH ACCELERATION MODEL
-        # --------------------------
-
-        if distance < self.slowness_radius:
-            # Smoothly slow down when near the target
+        # -----------------------------------------
+        # SYMMETRIC SPEED PROFILE
+        # -----------------------------------------
+        if distance <= self.slow_radius:
+            # MIN SPEED zone near goal
             desired_speed = self.min_speed
-        else:
-            # Accelerate normally
+
+        elif distance >= self.fast_radius:
+            # MAX SPEED zone far from goal
             desired_speed = self.max_speed
 
-        # Stop when target requires stopping
-        if stop_flag and distance < self.slowness_radius:
+        else:
+            # linear acceleration/deceleration zone
+            # scale between min_speed → max_speed
+            ratio = (distance - self.slow_radius) / (self.fast_radius - self.slow_radius)
+            desired_speed = self.min_speed + ratio * (self.max_speed - self.min_speed)
+
+        # -----------------------------------------
+        # Stop behavior
+        # -----------------------------------------
+        if stop_flag and distance < self.slow_radius:
             desired_speed = 0.0
 
-        # Smooth speed approach
+        # -----------------------------------------
+        # Smooth speed change (accel & decel)
+        # -----------------------------------------
         if self.actual_speed < desired_speed:
             self.actual_speed = min(self.actual_speed + self.accel, desired_speed)
         else:
@@ -88,10 +99,14 @@ class RobotMover(Node):
 
         twist.linear.x = self.actual_speed
 
-        # Angular speed with smoothing
+        # -----------------------------------------
+        # Angular smoothing
+        # -----------------------------------------
         twist.angular.z = max(-0.8, min(0.8, angle_diff * 1.2))
 
+        # -----------------------------------------
         # Check target reached
+        # -----------------------------------------
         if distance < 0.08:
             self.current_index = (self.current_index + 1) % len(self.positions)
             self.get_logger().info(f"Reached point {self.current_index}")
