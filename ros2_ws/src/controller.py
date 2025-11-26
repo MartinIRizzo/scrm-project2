@@ -17,11 +17,28 @@ class RobotMover(Node):
         self.odom_sub = self.create_subscription(Odometry, 'odom', self.odom_callback, 10)
 
         # Define points (A, B, C, D)
-        self.positions = [(0, 0), (2, 0), (2, 2), (0, 2)]
+        self.positions = [
+            (0, 0, False),
+            (1, 0, True),
+            (2, 0, False),
+            (1, 0, True),
+            (2, 2, False),
+            (1, 0, True),
+            (0, 2, False),
+            (1, 0, True)]
         self.current_index = 0
+
+        # Radius where speed needs to be reduced [position - radius, position + radius]
+        self.slowness_radius = 10
 
         self.position = (0, 0)  # Current robot position
         self.yaw = 0.0  # Current orientation (yaw)
+
+        # Maximum and minimum robot speed and robot acceleration
+        self.actual_speed = 0.0 # m/s
+        self.max_speed = 100.0 # m/s
+        self.min_speed = 10.0 # m/s
+        self.acceleration = 0.5 # m/s
 
         # Timer for control loop
         self.timer = self.create_timer(0.1, self.move_to_point)  # 10 Hz
@@ -45,8 +62,8 @@ class RobotMover(Node):
         target_x, target_y = target
 
         # Compute distance and angle to target
-        dx = target_x - x
-        dy = target_y - y
+        dx = abs(target_x - x)
+        dy = abs(target_y - y)
         distance = math.hypot(dx, dy)
         angle_to_target = math.atan2(dy, dx)
         angle_diff = angle_to_target - self.yaw
@@ -55,8 +72,26 @@ class RobotMover(Node):
         # Control law
         twist = Twist()
 
+        # We get the previous position
+        if self.current_index == 0:
+            previous = self.position[-1]
+        else:
+            previous = self.positions[self.current_index - 1]
+
+        absolute_dx = abs(target_x - previous[0])
+        absolute_dy = abs(target_y - previous[1])
+        absolute_distance = math.hypot(absolute_dx, absolute_dy)
+
         # Linear speed proportional to distance (max 0.5 m/s)
-        twist.linear.x = min(0.5, distance)
+        speed = self.actual_speed
+        if absolute_distance / 2 > distance:
+            if speed < self.max_speed:
+                speed = min(speed + self.acceleration, self.max_speed)
+        else:
+            if speed > self.min_speed:
+                speed = min(speed - self.acceleration, self.min_speed)
+
+        twist.linear.x = speed
 
         # Angular speed proportional to angle difference (max 1 rad/s)
         twist.angular.z = max(-1.0, min(1.0, angle_diff))
