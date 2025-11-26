@@ -16,14 +16,14 @@ xhost +local:docker > /dev/null 2>&1
 
 # Start container
 echo "🐳 Starting Docker container..."
-docker compose up -d nav2_dev
+docker compose up -d
 
 if [ $? -eq 0 ]; then
     echo ""
     echo "✅ SCRM development environment started!"
     echo ""
     echo "Access the container:"
-    echo "  docker exec -it scrm-projecg2 bash"
+    echo "  docker exec -it scrm-project2 bash"
     echo ""
     echo "Stop environment:"
     echo "  ./stop.sh"
