@@ -1,0 +1,53 @@
+# World Configuration for MUSI-nav2 Simulation
+#
+# This file defines available Gazebo worlds for the simulation environment.
+# Each world entry specifies the path and optional metadata.
+#
+# All paths are absolute paths to world files in /shared/worlds/
+#
+# To add a new world:
+# 1. Copy world file to /shared/worlds/
+# 2. Add entry under 'worlds' section with path, description, map, and spawn position
+#
+# Usage:
+#   ros2 launch simulation.launch.py world:=<world_name>
+
+worlds:
+  landmark:
+    path: /shared/worlds/landmark_world.world
+    description: Custom landmark world with boundary walls for navigation practice
+    map: /shared/maps/landmark_map.yaml
+    default_spawn:
+      x: -2.0
+      y: 2.0
+      z: 0.01
+
+  turtlebot3_world:
+    path: /shared/worlds/turtlebot3_world.world
+    description: TurtleBot3 default world with house-like obstacles
+    map: /shared/maps/turtlebot3_world.yaml
+    default_spawn:
+      x: 0.0
+      y: 0.0
+      z: 0.01
+
+  turtlebot3_house:
+    path: /shared/worlds/turtlebot3_house.world
+    description: TurtleBot3 house environment with rooms and furniture
+    map: /shared/maps/turtlebot3_house.yaml
+    default_spawn:
+      x: 0.0
+      y: 0.0
+      z: 0.01
+
+  empty_world:
+    path: /shared/worlds/empty_world.world
+    description: Empty world with only ground plane (for basic testing)
+    map: /shared/maps/empty_10x10.yaml
+    default_spawn:
+      x: 0.0
+      y: 0.0
+      z: 0.01
+
+# Default world (used when no 'world' argument provided)
+default_world: landmark

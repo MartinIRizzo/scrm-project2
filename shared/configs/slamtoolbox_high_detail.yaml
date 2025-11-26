@@ -1,0 +1,62 @@
+slam_toolbox:
+  ros__parameters:
+    use_sim_time: true
+
+    # ROS Parameters
+    odom_frame: odom
+    map_frame: map
+    base_frame: base_footprint
+    scan_topic: /scan
+
+    mode: mapping
+
+    # VARIATION A: High Resolution (0.025m)
+    # Captures fine details at cost of larger maps and more computation
+    resolution: 0.025
+
+    # Publish map frequently for detailed visualization
+    map_update_interval: 2.0
+
+    # Loop Closure - aggressive to catch all possible closures
+    do_loop_closing: true
+    loop_search_maximum_distance: 5.0  # Search wider area
+    loop_match_minimum_chain_size: 5   # Accept shorter chains
+
+    # VARIATION D: Trust sensors more (frequent updates)
+    # Update map based on small movements
+    use_scan_matching: true
+    use_scan_barycenter: true
+    minimum_travel_distance: 0.1    # Update every 10cm
+    minimum_travel_heading: 0.087   # Update every 5 degrees
+
+    scan_buffer_size: 30  # Keep more scans for matching
+    scan_buffer_maximum_scan_distance: 15.0
+
+    # VARIATION C: Extended range and minimal filtering
+    max_laser_range: 12.0
+    minimum_time_interval: 0.3  # Process scans more frequently
+
+    # Solver
+    solver_plugin: solver_plugins::CeresSolver
+    ceres_linear_solver: SPARSE_NORMAL_CHOLESKY
+    ceres_preconditioner: SCHUR_JACOBI
+    ceres_trust_strategy: LEVENBERG_MARQUARDT
+    ceres_dogleg_type: TRADITIONAL_DOGLEG
+    ceres_loss_function: None
+
+    # Fine correlation for better matching
+    correlation_search_space_dimension: 0.5
+    correlation_search_space_resolution: 0.005  # Finer search
+    correlation_search_space_smear_deviation: 0.1
+
+    # Loop closure thresholds - more permissive
+    loop_match_maximum_variance_coarse: 3.5
+    loop_match_minimum_response_coarse: 0.30
+    loop_match_minimum_response_fine: 0.40
+
+    # Scan matching parameters
+    coarse_search_angle_offset: 0.349
+    coarse_angle_resolution: 0.0349
+    minimum_angle_penalty: 0.9
+    minimum_distance_penalty: 0.5
+    use_response_expansion: true

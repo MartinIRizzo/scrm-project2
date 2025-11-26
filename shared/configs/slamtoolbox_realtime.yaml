@@ -1,0 +1,62 @@
+slam_toolbox:
+  ros__parameters:
+    use_sim_time: true
+
+    # ROS Parameters
+    odom_frame: odom
+    map_frame: map
+    base_frame: base_footprint
+    scan_topic: /scan
+
+    mode: mapping
+
+    # VARIATION A: Coarse Resolution (0.10m)
+    # Reduces map size and computational requirements
+    resolution: 0.10
+
+    # Update map less frequently to save resources
+    map_update_interval: 10.0
+
+    # Loop Closure - conservative to avoid false positives
+    do_loop_closing: true
+    loop_search_maximum_distance: 3.0
+    loop_match_minimum_chain_size: 15  # Require longer chains
+
+    # VARIATION D: Trust odometry more (infrequent updates)
+    # Only update when significant motion occurs
+    use_scan_matching: true
+    use_scan_barycenter: true
+    minimum_travel_distance: 0.5    # Update every 50cm
+    minimum_travel_heading: 0.35    # Update every 20 degrees
+
+    scan_buffer_size: 10  # Smaller buffer
+    scan_buffer_maximum_scan_distance: 8.0
+
+    # VARIATION C: Limited range and computation
+    max_laser_range: 6.0
+    minimum_time_interval: 1.0  # Process less frequently
+
+    # Solver
+    solver_plugin: solver_plugins::CeresSolver
+    ceres_linear_solver: SPARSE_NORMAL_CHOLESKY
+    ceres_preconditioner: SCHUR_JACOBI
+    ceres_trust_strategy: LEVENBERG_MARQUARDT
+    ceres_dogleg_type: TRADITIONAL_DOGLEG
+    ceres_loss_function: None
+
+    # Coarser correlation for speed
+    correlation_search_space_dimension: 0.5
+    correlation_search_space_resolution: 0.02  # Coarser search
+    correlation_search_space_smear_deviation: 0.1
+
+    # Loop closure thresholds - stricter
+    loop_match_maximum_variance_coarse: 2.5
+    loop_match_minimum_response_coarse: 0.40
+    loop_match_minimum_response_fine: 0.50
+
+    # Scan matching parameters
+    coarse_search_angle_offset: 0.349
+    coarse_angle_resolution: 0.0349
+    minimum_angle_penalty: 0.9
+    minimum_distance_penalty: 0.5
+    use_response_expansion: true

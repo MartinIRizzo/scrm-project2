@@ -1,0 +1,51 @@
+# Simulation Launch Parameters for MUSI-nav2
+#
+# This file contains default parameters for the simulation launch file.
+# Override these by passing arguments to the launch command:
+#   ros2 launch simulation.launch.py param_file:=/path/to/custom_params.yaml
+#
+# Or override individual parameters:
+#   ros2 launch simulation.launch.py x:=2.0 y:=-1.0 world:=empty_world
+
+# World configuration
+world:
+  default_world: landmark  # Default world to load
+
+# Robot spawn position
+spawn:
+  x: -1.0      # X coordinate (meters)
+  y: 2.0       # Y coordinate (meters)
+  z: 0.1       # Z coordinate (meters, spawn higher to prevent physics explosion)
+
+# Simulation settings
+simulation:
+  use_sim_time: true     # Use simulation clock
+  headless: false        # Run Gazebo without GUI (saves resources)
+
+# Visualization
+visualization:
+  rviz: true                              # Launch RViz
+  rviz_config: /shared/configs/default.rviz  # RViz config file path
+
+# World-specific spawn positions (optional overrides)
+# These can be used to spawn the robot at optimal positions for each world
+world_spawn_positions:
+  landmark:
+    x: -1.0
+    y: 1.0
+    z: 0.1
+
+  turtlebot3_world:
+    x: -2.0
+    y: -0.5
+    z: 0.1
+
+  turtlebot3_house:
+    x: -2.0
+    y: -0.5
+    z: 0.1
+
+  empty_world:
+    x: 0.0
+    y: 0.0
+    z: 0.1
