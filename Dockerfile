@@ -42,4 +42,6 @@ ENV TURTLEBOT3_MODEL=waffle
 ENV GAZEBO_MODEL_PATH=/opt/ros/humble/share/turtlebot3_gazebo/models
 ENV ROS_DOMAIN_ID=0
 
+RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc
+
 CMD ["/bin/bash"]
