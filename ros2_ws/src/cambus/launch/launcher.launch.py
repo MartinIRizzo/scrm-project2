@@ -12,7 +12,7 @@ def generate_launch_description():
         'urdf',
         'turtlebot3_waffle.urdf'
     )
-    world_path = "/shared/worlds/landmark_world.world"
+    world_path = "/shared/worlds/uib.world"
 
     x = -2.0
     y = 2.0
