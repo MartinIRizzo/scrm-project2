@@ -15,14 +15,21 @@ class RobotMover(Node):
 
         # (x, y, stop_flag)
         self.positions = [
-            (0, 0, False),
-            (1, 0, True),
-            (2, 0, False),
-            (1, 0, True),
-            (2, 2, False),
-            (1, 0, True),
-            (0, 2, False),
-            (1, 0, True)
+            (-6.7, -27.2, False), 
+            (10.47, -27.35, True),
+            (41.45, -27.35, True),
+            (41.45, -14.27, True),
+            (14.16, -14.27, True),
+            (-6.86, -14.27, True),
+            (-7.42, -1.86, True),
+            (5.58, -1.86, True),
+            (19.03, -1.86, False),
+            (19.03, 5.69, True),
+            (19.03, 11.071, False),
+            (-1.30, 11.071, True),
+            (-8.30, 11.071, False),
+            (-7.55, .42, True),
+            (-7.35, -14.16, False),
         ]
         self.current_index = 0
 
@@ -54,7 +61,7 @@ class RobotMover(Node):
         self.yaw = math.atan2(siny_cosp, cosy_cosp)
 
     def update(self):
-        target_x, target_y, stop_flag = self.positions[self.current_index]
+        target_y, target_x, stop_flag = self.positions[self.current_index]
 
         dx = target_x - self.x
         dy = target_y - self.y

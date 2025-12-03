@@ -14,8 +14,8 @@ def generate_launch_description():
     )
     world_path = "/shared/worlds/uib.world"
 
-    x = -2.0
-    y = 2.0
+    x = -28
+    y = 6.7
     z = 0.01
 
     with open(robot_path, 'r') as f:
@@ -37,7 +37,7 @@ def generate_launch_description():
     )
 
     spawn_robot = TimerAction(
-        period=60.0,
+        period=10.0,
         actions=[
             Node(
                 package='gazebo_ros',
