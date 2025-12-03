@@ -15,27 +15,26 @@ class RobotMover(Node):
 
         # (x, y, stop_flag)
         self.positions = [
-            (-6.7, -27.2, False), 
-            (10.47, -27.35, True),
-            (41.45, -27.35, True),
-            (41.45, -14.27, True),
-            (14.16, -14.27, True),
-            (-6.86, -14.27, True),
-            (-7.42, -1.86, True),
-            (5.58, -1.86, True),
-            (19.03, -1.86, False),
-            (19.03, 5.69, True),
-            (19.03, 11.071, False),
-            (-1.30, 11.071, True),
-            (-8.30, 11.071, False),
-            (-7.55, .42, True),
-            (-7.35, -14.16, False),
+            (-6.7, -27.2, True),
+            (-10.47, -27.35, True),
+            (-41.45, -27.35, True),
+            (-41.45, -14.27, True),
+            (-14.16, -14.27, True),
+            (6.86, -14.27, True),
+            (7.42, -1.86, True),
+            (-5.58, -1.86, True),
+            (-19.03, -1.86, True),
+            (-19.03, 5.69, True),
+            (-19.03, 11.071, True),
+            (1.30, 11.071, True),
+            (8.30, 11.071, True),
+            (7.55, .42, True),
+            (7.35, -14.16, True),
         ]
         self.current_index = 0
 
         # Speed zone radii (symmetric profile)
-        self.slow_radius = 0.6      # R_SLOW    → min speed zone
-        self.fast_radius = 2.0      # R_FAST    → full speed region
+        self.slow_radius = 1.0      # R_SLOW    → min speed zone
 
         self.x = 0.0
         self.y = 0.0
@@ -43,10 +42,10 @@ class RobotMover(Node):
 
         # Speed parameters
         self.actual_speed = 0.0
-        self.max_speed = 0.4   # MAX
-        self.min_speed = 0.07  # MIN
-        self.accel = 0.05
-        self.decel = 0.05
+        self.max_speed = 0.8    # MAX
+        self.min_speed = 0.1    # MIN
+        self.accel = 0.02
+        self.decel = 0.02
 
         self.timer = self.create_timer(0.1, self.update)
         self.get_logger().info("Smooth Robot Mover started")
@@ -76,25 +75,27 @@ class RobotMover(Node):
         # -----------------------------------------
         # SYMMETRIC SPEED PROFILE
         # -----------------------------------------
-        if distance <= self.slow_radius:
+        print(f'{distance} <= {self.slow_radius}')
+
+        # A [---]---[---] B
+
+        absolute_dx = self.positions[(self.current_index - 1 + len(self.positions))%len(self.positions)][1] - self.positions[self.current_index][1]
+        absolute_dy = self.positions[(self.current_index - 1 + len(self.positions))%len(self.positions)][0] - self.positions[self.current_index][0]
+        absolute_distance = math.hypot(absolute_dx, absolute_dy)
+
+        if stop_flag and (distance <= self.slow_radius or absolute_distance - distance <= self.slow_radius):
             # MIN SPEED zone near goal
             desired_speed = self.min_speed
 
-        elif distance >= self.fast_radius:
+        else:
             # MAX SPEED zone far from goal
             desired_speed = self.max_speed
-
-        else:
             # linear acceleration/deceleration zone
             # scale between min_speed → max_speed
-            ratio = (distance - self.slow_radius) / (self.fast_radius - self.slow_radius)
-            desired_speed = self.min_speed + ratio * (self.max_speed - self.min_speed)
+            # ratio = (distance - self.slow_radius) / (self.fast_radius - self.slow_radius)
+            # desired_speed = self.min_speed + ratio * (self.max_speed - self.min_speed)
 
-        # -----------------------------------------
-        # Stop behavior
-        # -----------------------------------------
-        if stop_flag and distance < self.slow_radius:
-            desired_speed = 0.0
+        print(f'desired: {desired_speed}')
 
         # -----------------------------------------
         # Smooth speed change (accel & decel)
